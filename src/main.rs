@@ -18,8 +18,10 @@ fn run_server(map_name: &str, num: usize) -> Child {
 
     let cmd_config = CMD_CONFIG.join("?");
     let main_arg = format!("{map_name}?SessionName=BoyScouts{map_name}?AltSaveDirectoryName=Save{map_name}?Port={port}?QueryPort={query_port}?listen?{cmd_config}");
-    let mut command = Command::new("./ark_server/ShooterGame/Binaries/Linux/ShooterGameServer");
-    command.current_dir("./ark_server/ShooterGame/Binaries/Linux")
+
+    let working_dir = std::env::current_dir().unwrap();
+    let mut command = Command::new(working_dir.join("ShooterGameServer"));
+    command.current_dir(working_dir)
         .arg(main_arg)
         .args([
             "-server",
