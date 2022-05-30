@@ -1,5 +1,5 @@
 use clap::{Parser, Subcommand};
-use std::process::{Command, Child};
+use std::process::{Child, Command};
 
 const CMD_CONFIG: &[&str] = &[
     "AllowFlyerCarryPvE=true",
@@ -19,39 +19,54 @@ fn run_server(map_name: &str, num: usize) -> Child {
     let cmd_config = CMD_CONFIG.join("?");
     let main_arg = format!("{map_name}?SessionName=BoyScouts{map_name}?AltSaveDirectoryName=Save{map_name}?Port={port}?QueryPort={query_port}?listen?{cmd_config}");
 
-    let working_dir = std::env::current_dir().unwrap().join("ark_server/ShooterGame/Binaries/Linux");
+    let working_dir = std::env::current_dir()
+        .unwrap()
+        .join("ark_server/ShooterGame/Binaries/Linux");
     let mut command = Command::new(working_dir.join("ShooterGameServer"));
-    command.current_dir(working_dir)
-        .arg(main_arg)
-        .args([
-            "-server",
-            "-log",
-            "-ForceRespawnDinos",
-            "-NoTransferFromFiltering",
-            "-clusterid=cluster1",
-            "-crossplay",
-            "-high",
-        ]);
+    command.current_dir(working_dir).arg(main_arg).args([
+        "-server",
+        "-log",
+        "-ForceRespawnDinos",
+        "-NoTransferFromFiltering",
+        "-clusterid=cluster1",
+        "-crossplay",
+        "-high",
+    ]);
     println!("{:?}", command);
 
     command.spawn().unwrap()
 }
 
 fn run_servers() {
-    let servers = ["TheIsland", "ScorchedEarth_P", "Aberration_P", "Extinction", "Genesis", "Gen2", "LostIsland"];
-    let children: Vec<Child> = servers.iter().enumerate().map(|(i, map_name)| run_server(map_name, i)).collect();
+    let servers = [
+        "TheIsland",
+        "ScorchedEarth_P",
+        "Aberration_P",
+        "Extinction",
+        "Genesis",
+        "Gen2",
+        "LostIsland",
+    ];
+    let mut children: Vec<Child> = servers
+        .iter()
+        .enumerate()
+        .map(|(i, map_name)| run_server(map_name, i))
+        .collect();
+    children.iter_mut().for_each(|child| {
+        let _ = child.wait().unwrap();
+    });
 }
 
 #[derive(Parser)]
 struct Args {
-   #[clap(subcommand)]
-   action: Action,
+    #[clap(subcommand)]
+    action: Action,
 }
 
 #[derive(Subcommand)]
 enum Action {
     Run,
-    Update
+    Update,
 }
 
 fn main() {
