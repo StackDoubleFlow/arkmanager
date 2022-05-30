@@ -28,7 +28,7 @@ fn run_server(map_name: &str, num: usize) -> Child {
         "-log",
         "-ForceRespawnDinos",
         "-NoTransferFromFiltering",
-        "-clusterid=cluster1",
+        "-clusterid=boyscouts727",
         "-crossplay",
         "-high",
     ]);
