@@ -12,6 +12,29 @@ const CMD_CONFIG: &[&str] = &[
     "IgnoreLimitMaxStructuresInRangeTypeFlag=false",
 ];
 
+fn update_server() {
+    let install_path = std::env::current_dir().unwrap().join("ark_server");
+    let mut command = Command::new("steamcmd");
+    command.args([
+        "+force_install_dir",
+        install_path.to_str().unwrap(),
+        "+login",
+        "anonymous",
+        "+app_update",
+        "376030",
+        "+quit",
+    ]);
+    println!("{:?}", command);
+    let status = command.spawn().unwrap().wait().unwrap();
+    if !status.success() {
+        if let Some(code) = status.code() {
+            println!("update failed with code {}", code);
+        } else {
+            println!("update failed with no status code given")
+        }
+    }
+}
+
 fn run_server(map_name: &str, num: usize) -> Child {
     let port = 7777 + num * 2;
     let query_port = 27015 + num;
@@ -73,6 +96,6 @@ fn main() {
     let args = Args::parse();
     match args.action {
         Action::Run => run_servers(),
-        Action::Update => todo!(),
+        Action::Update => update_server(),
     }
 }
