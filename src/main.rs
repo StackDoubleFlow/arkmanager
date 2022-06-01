@@ -1,16 +1,6 @@
 use clap::{Parser, Subcommand};
+use std::fs;
 use std::process::{Child, Command};
-
-const CMD_CONFIG: &[&str] = &[
-    "AllowFlyerCarryPvE=true",
-    "OverrideOfficialDifficulty=5.0",
-    "PreventSpawnAnimations=false",
-    "PvEAllowStructuresAtSupplyDrops=true",
-    "ShowFloatingDamageText=true",
-    "GameModIds=731604991,1522327484",
-    "AllowCaveBuildingPVE=true",
-    "IgnoreLimitMaxStructuresInRangeTypeFlag=false",
-];
 
 fn update_server() {
     let install_path = std::env::current_dir().unwrap().join("ark_server");
@@ -35,11 +25,10 @@ fn update_server() {
     }
 }
 
-fn run_server(map_name: &str, num: usize) -> Child {
+fn run_server(map_name: &str, num: usize, cmd_config: &str) -> Child {
     let port = 7777 + num * 2;
     let query_port = 27015 + num;
 
-    let cmd_config = CMD_CONFIG.join("?");
     let main_arg = format!("{map_name}?SessionName=BoyScouts{map_name}?AltSaveDirectoryName=Save{map_name}?Port={port}?QueryPort={query_port}?listen?{cmd_config}");
 
     let working_dir = std::env::current_dir()
@@ -61,6 +50,13 @@ fn run_server(map_name: &str, num: usize) -> Child {
 }
 
 fn run_servers() {
+    let cmd_config = if let Ok(data) = fs::read_to_string("./CMDConfig.ini") {
+        data.trim().lines().collect::<Vec<_>>().join("?")
+    } else {
+        println!("could not read CMDConfig.ini");
+        String::new()
+    };
+
     let servers = [
         "TheIsland",
         "ScorchedEarth_P",
@@ -73,7 +69,7 @@ fn run_servers() {
     let mut children: Vec<Child> = servers
         .iter()
         .enumerate()
-        .map(|(i, map_name)| run_server(map_name, i))
+        .map(|(i, map_name)| run_server(map_name, i, &cmd_config))
         .collect();
     children.iter_mut().for_each(|child| {
         let _ = child.wait().unwrap();
