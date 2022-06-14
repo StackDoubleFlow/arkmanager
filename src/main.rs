@@ -65,6 +65,7 @@ fn run_servers() {
         "Genesis",
         "Gen2",
         "LostIsland",
+        "Fjordur",
     ];
     let mut children: Vec<Child> = servers
         .iter()
