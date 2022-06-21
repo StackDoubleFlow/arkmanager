@@ -59,10 +59,14 @@ fn run_servers() {
 
     let servers = [
         "TheIsland",
+        "TheCenter",
         "ScorchedEarth_P",
+        "Ragnarok",
         "Aberration_P",
         "Extinction",
+        "Valguero_P",
         "Genesis",
+        "CrystalIsles",
         "Gen2",
         "LostIsland",
         "Fjordur",
